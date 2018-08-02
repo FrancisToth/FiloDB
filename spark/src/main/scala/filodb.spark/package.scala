@@ -79,11 +79,12 @@ package object spark extends StrictLogging {
                                    version: Int,
                                    rows: Iterator[Row],
                                    writeTimeout: FiniteDuration,
-                                   partitionIndex: Int): Unit = {
+                                   partitionIndex: Int,
+                                   binaryRecordMaxByte: Int): Unit = {
     // Use a queue and read off of iterator in this, the Spark thread.  Due to the presence of ThreadLocals
     // it is not safe for us to read off of this iterator in another (ie Actor) thread
     val queue = new ArrayBlockingQueue[Seq[Row]](32)
-    val props = RddRowSourceActor.props(queue, projection, version, clusterActor)
+    val props = RddRowSourceActor.props(queue, projection, version, clusterActor, binaryRecordMaxByte)
     val actorId = actorCounter.getAndIncrement()
     val ref = projection.datasetRef
     val rddRowActor = FiloExecutor.system.actorOf(props, s"${ref}_${version}_${partitionIndex}_${actorId}")

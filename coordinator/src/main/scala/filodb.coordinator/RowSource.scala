@@ -51,6 +51,7 @@ trait RowSource extends Actor with StrictLogging {
 
   // Maximum number of unacked batches to push at a time.  Used for flow control.
   def maxUnackedBatches: Int
+  def binaryRecordMaxByte: Int = 8192
 
   def waitingPeriod: FiniteDuration = 5.seconds
   def ackTimeout: FiniteDuration = 20.seconds
@@ -196,7 +197,7 @@ trait RowSource extends Actor with StrictLogging {
     logger.trace(s"  ==> BinaryRecord conversion for ${nextBatch.size} rows...")
     val binReaders = nextBatch.map { r =>
       try {
-        BinaryRecord(projection.binSchema, r)
+        BinaryRecord(projection.binSchema, r, binaryRecordMaxByte)
       } catch {
         case e: Exception =>
           logger.error(s"Could not convert source row $r to BinaryRecord", e)

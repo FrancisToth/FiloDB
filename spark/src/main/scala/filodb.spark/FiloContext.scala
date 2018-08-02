@@ -158,14 +158,15 @@ class FiloContext(val sqlContext: SQLContext) extends AnyVal {
     // Cannot serialize raw columns
     val colStrings = dfColumns.map(_.toString)
 
+    val binaryRecordMaxByte = FiloDriver.config.getInt("spark.binaryrecord-max-byte")
     // For each partition, start the ingestion
     df.rdd.mapPartitionsWithIndex { case (index, rowIter) =>
       // Everything within this function runs on each partition/executor, so need a local datastore & system
-      val _columns = colStrings.map(s => DataColumn.fromString(s, dataset.dataset))
-      val proj = RichProjection(datasetObj, _columns)
+      val columns = colStrings.map(s => DataColumn.fromString(s, dataset.dataset))
+      val proj = RichProjection(datasetObj, columns)
       sparkLogger.info(s"Starting ingestion of DataFrame for dataset $dataset, partition $index...")
       ingestRddRows(FiloExecutor.clusterActor, proj, version, rowIter,
-                    writeTimeout, index)
+                    writeTimeout, index, binaryRecordMaxByte)
       Iterator.empty
     }.count()
 

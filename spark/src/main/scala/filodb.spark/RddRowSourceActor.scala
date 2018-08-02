@@ -18,14 +18,16 @@ object RddRowSourceActor {
   // Needs to be a multiple of chunkSize. Not sure how to have a good default though.
   val DefaultMaxUnackedBatches = 10
   val DefaultRowsToRead = 1000
+  val DefaultBinaryRecordMaxByte = 8192
 
   def props(queue: BlockingQueue[Seq[Row]],
             projection: RichProjection,
             version: Int,
             clusterActor: ActorRef,
+            binaryRecordMaxByte: Int = DefaultBinaryRecordMaxByte,
             maxUnackedBatches: Int = RddRowSourceActor.DefaultMaxUnackedBatches): Props =
     Props(classOf[RddRowSourceActor], queue, projection, version,
-          clusterActor, maxUnackedBatches)
+          clusterActor, binaryRecordMaxByte, maxUnackedBatches)
 }
 
 /**
@@ -37,6 +39,7 @@ class RddRowSourceActor(queue: BlockingQueue[Seq[Row]],
                         val projection: RichProjection,
                         val version: Int,
                         val clusterActor: ActorRef,
+                        override val binaryRecordMaxByte: Int = RddRowSourceActor.DefaultBinaryRecordMaxByte,
                         val maxUnackedBatches: Int = RddRowSourceActor.DefaultMaxUnackedBatches)
 extends BaseActor with RowSource {
   import RddRowSourceActor._
