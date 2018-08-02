@@ -110,7 +110,7 @@ lazy val coreDeps = commonDeps ++ Seq(
   "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
   "org.slf4j"             % "slf4j-api"         % "1.7.10",
   "com.beachape"         %% "enumeratum"        % "1.2.1",
-  "org.velvia.filo"      %% "filo-scala"        % "0.3.6",
+  "org.velvia.filo"      %% "filo-scala"        % "0.3.7",
   "io.monix"             %% "monix"             % "2.3.0",
   "joda-time"             % "joda-time"         % "2.2",
   "org.joda"              % "joda-convert"      % "1.2",
